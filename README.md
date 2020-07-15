@@ -1,0 +1,2 @@
+# ElecCash
+Electron Cashier app
