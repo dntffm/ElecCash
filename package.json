@@ -1,0 +1,26 @@
+{
+  "name": "eleccash",
+  "version": "1.0.0",
+  "description": "Electron Cashier app",
+  "main": "main.js",
+  "dependencies": {
+    "electron": "^9.1.0",
+    "quagga": "^0.12.1",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dntffm/ElecCash.git"
+  },
+  "author": "denta maulana",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dntffm/ElecCash/issues"
+  },
+  "homepage": "https://github.com/dntffm/ElecCash#readme"
+}
