@@ -14,10 +14,18 @@
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
   <!-- Custom styles for this template-->
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
+  <link rel="stylesheet" href="vendor/datatables/dataTables.bootstrap4.css">
+  <link rel="stylesheet" href="vendor/jqueryui/jqueryui.css">
+  <style>
+    .autocomplete-suggestions { border: 1px solid #999; background: #FFF; overflow: auto; }
+    .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+    .autocomplete-selected { background: #F0F0F0; }
+    .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
+    .autocomplete-group { padding: 2px 5px; }
+    .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
+  </style>
 </head>
 
 <body id="page-top">
@@ -77,10 +85,11 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="rekap.html">
+        <a class="nav-link" href="#">
           <i class="fas fa-fw fa-table"></i>
           <span>Rekap</span></a>
       </li>
+
       <!-- Divider -->
       <hr class="sidebar-divider d-none d-md-block">
 
@@ -108,11 +117,10 @@
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
-            <div class="topbar-divider d-none d-sm-block"></div>
             <!-- Nav Item - User Information -->
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin</span>
                 <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
               </a>
               <!-- Dropdown - User Information -->
@@ -141,60 +149,38 @@
 
         </nav>
         <!-- End of Topbar -->
-
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-xl-8 col-lg-7">
-                    <div class="card shadow mb-4">
-                      <!-- Card Header - Dropdown -->
-                      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Tambah Barang</h6>
-                        <div class="dropdown no-arrow">
-                          <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                          </a>
-                          <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Card Body -->
-                      <div class="card-body">
-                        <form>
-                          <div class="form-group">
-                            <label for="barcode">Nomer Barcode</label>
-                            <input type="number" class="form-control" name="barcode" id="barcode" placeholder="Nomer Barcode" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="nama_barang">Nama Barang</label>
-                            <input id="nama_barang" type="text" class="form-control" name="nama_barang" placeholder="Nama Barang" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="harga_grosir">Harga Grosir</label>
-                            <input type="number" class="form-control" name="harga_grosir" id="harga_grosir" placeholder="Harga Grosir" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="harga_eceran">Harga Eceran</label>
-                            <input type="number" class="form-control" name="harga_eceran" id="harga_eceran" placeholder="Harga Eceran" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="stok">Stok</label>
-                            <input type="number" class="form-control" name="stok" id="stok" placeholder="Stok" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="satuan">satuan</label>
-                            <input type="text" class="form-control" name="satuan" id="satuan" placeholder="satuan" required>
-                          </div>
-                          <button type="submit" id="submit_tambah" class="btn btn-primary">OK</button>
-                        </form>
-                      </div>
-                    </div>
+          <h1 class="h3 mb-2 text-gray-800">Daftar Transaksi</h1>
+          <div class="card-shadow mb-4">
+              <div class="card-header py-3">
+                  
+              </div>
+              <div class="card-body">
+                  <div class="table-responsive">
+                      <table class="table table-bordered" id="tableRekap">
+                          <thead>
+                              <th>#</th>
+                              <th>Id.Transaksi</th>
+                              <th>Tanggal</th>
+                              <th>Aksi</th>
+                          </thead>
+                          <tbody id="tbodyRekap">
+
+                          </tbody>
+                      </table>
                   </div>
-            </div>
+              </div>
+          </div>
+
+      </div>
+
+
+          
+
+          
+
+        </div>
+          
         </div>
 
     </div>
@@ -202,9 +188,9 @@
 
   </div>
   <!-- End of Page Wrapper -->
+  <a class="scroll-to-top rounded" href="#page-top">
 
   <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
   </a>
 
@@ -227,23 +213,62 @@
     </div>
   </div>
 
+  <div class="modal fade " id="modal-detail-transaksi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Detail Transaksi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="body-detail-transaksi">
+                      <p><strong id="detail-transaksi-tgl"></strong></p>
+                      <div class="table-responsive">
+                        <table class="table table-bordered" id="tableRekapDetail">
+                            <thead>
+                                <th>#</th>
+                                <th>Nama Barang</th>
+                                <th>Jumlah</th>
+                                <th>Harga</th>
+                                <th>Sub-total</th>
+                            </thead>
+                            <tbody id="tbodyRekapDetail">
+  
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
   <!-- Bootstrap core JavaScript-->
   <script>
-    if (typeof module === 'object') {window.module = module; module = undefined;}
-</script>
+    if (typeof module === 'object') {
+      window.module = module; module = undefined;
+    }
+  </script>
   <script src="vendor/jquery/jquery.min.js"></script>
-  
+  <script src="vendor/jqueryui/jqueryui.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- Core plugin JavaScript-->
+  <script src="vendor/datatables/jquery.dataTables.js"></script>
+  <script src="vendor/pouchDB/pouchdb-7.2.1.js"></script>
+  <script src="vendor/pouchDB/pouchdb.quick-search.js"></script>
+  <script src="vendor/pouchDB/pouchdb.find.js"></script>
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/pouchDB/pouchdb-7.2.1.js"></script>
-    <script src="db/db.js"></script>
+
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin-2.min.js"></script>
-<script>
+  <script src="js/sharing.js"></script>
+  <script src="db/db.js"></script>
+  <script>
     if (window.module) module = window.module;
-</script>
+  </script>
 </body>
 
 </html>

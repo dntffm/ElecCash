@@ -1,20 +1,75 @@
+var db_laporan = new PouchDB("laporan");
 var db = new PouchDB('toko');
 var {dialog} = require('electron').remote
 var remoteCouch = false;
 var cart = [];
-
+var now = new Date().getDate()+"/"+new Date().getMonth()+"/"+new Date().getFullYear();
 
 $('document').ready(function(){
     showTableEdit();
+    showTableRekap();
     $(document).on("keydown", "form", function(event) { 
         return event.key != "Enter";
     });
 
-    function tambahLaporan(data){
-        var db_laporan = new PouchDB("laporan");
-        var remoteCouch = false;
+    function showTableRekap(){
+        var t = $("#tableRekap").DataTable();
+        db_laporan.allDocs({include_docs:true},function(err,response){
+            if(err){
+                console.log(err)
+            } else{
+                var counter = 1;
+                $.each(response.rows,function(key,value){
+                    t.row.add([
+                        counter,
+                        value.doc._id,
+                        value.doc.tanggal,
+                        '<button data-id="'+value.doc._id+'" class="btn btn-info" data-toggle="modal" data-target="#modal-detail-transaksi">detail</button>'
+                    ]).draw(false);
+                    counter++;
+               
+                });
+            }
+        })
+    }
 
-        console.log(data);
+    function tambahLaporan(data){
+        db_laporan.put({
+            "_id": new Date().toISOString(),
+            "tanggal": now,
+            data
+        }).then(function(response){
+            if(dialog.showMessageBoxSync({
+                type: "info",
+                message: "Transaksi Sukses",
+                buttons:["Selesai, Tidak Print","Selesai dan print"]
+            }) == 1) {
+                var printer = new Recta('9415999884', '1811')
+                printer.open().then(function () {
+                  printer.align('center')
+                    .text('Hello World !!')
+                    .bold(true)
+                    .text('This is bold text')
+                    .bold(false)
+                    .underline(true)
+                    .text('This is underline text')
+                    .underline(false)
+                    .barcode('CODE39', '123456789')
+                    .cut()
+                    .print()
+                })
+            };
+
+            cart = [];
+            location.reload();
+            //script print
+        }).catch(function(error){
+            console.log(error);
+            dialog.showMessageBoxSync({
+                type: "error",
+                message: "Transaksi Gagal"
+            });
+        })
     }
 
     function tambahBarang() {
@@ -24,7 +79,6 @@ $('document').ready(function(){
         var barcode = $('#barcode').val();
         var stok = $('#stok').val();
         var satuan = $('#satuan').val();
-
 
         var doc = {
             "_id": new Date().toISOString(),
@@ -39,6 +93,7 @@ $('document').ready(function(){
             dialog.showMessageBoxSync({
                 type: "info",
                 message: "Tambah barang Berhasil"
+                
             });
             
         }).catch(function(err){
@@ -103,8 +158,7 @@ $('document').ready(function(){
                     availBrg.push({value:value.doc.barcode+' | '+value.doc.nama_barang,data:value.doc});
                 })
             }
-        })
-        console.log(availBrg);
+        });
         $('#idbarang').autocomplete({
             lookup: availBrg,
             onSelect: function(suggestion){
@@ -120,32 +174,77 @@ $('document').ready(function(){
         var id = $('#idbarang').val();
         var jumlah = parseInt($("#jumlah").val());
         var harga = temp.data.harga_eceran;
-        
-  
+        var ready = false;
 
         if($("#jenisjual").val() === "grosir"){
             harga = temp.data.harga_grosir;
         }
 
-        t.row.add([
-            temp.data.nama_barang,
-            jumlah,
-            harga,
-            harga*jumlah,
-            '<button class="hpsNota btn btn-danger" data-id="'+temp.data._id+'">hapus</button>'
+        for (let index = 0; index < cart.length; index++) {
+            if(temp.data._id == cart[index].data._id){
+                ready = true;
+            }
             
-        ]).draw(false);  
-        total+=harga*jumlah;
-        $("#total").html(total);
-        temp.data.jumlah = jumlah;
-        temp.data.pilihanHarga = $("#jenisjual").val();
-        cart.push(temp);
-        e.preventDefault();
+        }
+        if(ready){
+            dialog.showMessageBoxSync({
+                type: "warning",
+                message: "barang sudah ada"
+            });
+
+            e.preventDefault();
+        }else{
+            t.row.add([
+                temp.data.nama_barang,
+                jumlah,
+                harga,
+                harga*jumlah,
+                '<button class="hpsNota btn btn-danger" data-id="'+temp.data._id+'">hapus</button>'
+                
+            ]).draw(false);  
+            total+=harga*jumlah;
+            $("#total").html(total);
+            temp.data.jumlah = jumlah;
+            temp.data.pilihanHarga = $("#jenisjual").val();
+            cart.push(temp);
+            $("#formkasir")[0].reset();
+            e.preventDefault();
+        }
     })
 
     $("#tableUbah").on('click','tbody tr td button',function(){
         var id = $(this)[0].dataset.id;
         showModalEdit(id);
+    })
+
+    $('#tableRekap').on('click','tbody tr td button',function(){
+        var id = $(this)[0].dataset.id;
+        var tbd = $('#tableRekapDetail').DataTable({
+            "paging" : false,
+            "ordering" : false,
+            "searching" : false,
+            "info" : false
+        }
+        );
+        db_laporan.get(id).then(function(response){
+            $('#detail-transaksi-tgl').html(response.tanggal+" | id:"+response._id);
+            $.each(response.data,function(key,value){
+                console.log(value);
+                var harga_pilih = value.data.harga_eceran;
+                if(value.data.pilihanHarga == "grosir"){
+                    harga_pilih = value.data.harga_grosir;
+                }
+                tbd.row.add([
+                    "-",
+                    value.data.nama_barang,
+                    value.data.jumlah,
+                    harga_pilih,
+                    value.data.jumlah  * harga_pilih
+                ]).draw(false);
+            })
+        }).catch(function(error){
+            console.log(error);
+        })
     })
 
     $("#simpan_modal").on('click',function(){
@@ -171,7 +270,22 @@ $('document').ready(function(){
     })
 
     $("#slsBelanja").on('click',function(){
-        tambahLaporan(temp);
+        if(cart.length == 0){
+            dialog.showMessageBoxSync({
+                type: "warning",
+                message: "Belanjaan Masih Kosong"
+            })
+        } else{
+            if($("#tunai").val() == ""){
+                dialog.showMessageBoxSync({
+                    type: "warning",
+                    message: "Masukkan Nominal Tunai"
+                })  
+            } else{
+                tambahLaporan(cart);
+            }
+        }
+        
     })
 
     $('#submit_tambah').on('click',function(e){
